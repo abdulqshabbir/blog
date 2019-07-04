@@ -2,8 +2,8 @@
 const express = require('express')
 const app = express()
 const PORT = require('./utils/config').PORT
-const MONGO_PASSWORD = require('./utils/config').MONGO_PASSWORD
-const MONGO_URI = `mongodb+srv://fullstack:${MONGO_PASSWORD}@phonebook-ajaa7.mongodb.net/test?retryWrites=true&w=majority`
+const MONGO_URI = require('./utils/config').MONGO_URI
+const MONGO_TEST_URI = require('./utils/config').MONGO_TEST_URI
 const mongoose = require('mongoose')
 const cors = require('cors')
 const bodyParser = require('body-parser')
@@ -17,6 +17,11 @@ morgan.token('req-body', (req, res) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req-body'))
 
 //----------- DATABASE CONNECTION -------------//
+
+if (process.env.NODE_ENV === 'test') {
+    MONGO_URI = process.env.MONGO_TEST_URI
+}
+
 mongoose
     .connect(MONGO_URI, {useNewUrlParser: true})
     .then(() => console.log('connected to database!'))
