@@ -31,7 +31,7 @@ blogRouter.post('/', (req, res) => {
     newBlog
         .save()
         .then(blog => blog.toJSON())
-        .then(formattedBlog => res.json(formattedBlog))
+        .then(formattedBlog => res.status(201).json(formattedBlog))
         .catch(error => {
             console.log(error)
             res.status(500).end()
