@@ -1,8 +1,12 @@
 require('dotenv').config()
-
 const PORT = process.env.PORT
-const MONGO_PASSWORD = process.env.MONGO_PASSWORD
-const MONGO_URI = `mongodb+srv://fullstack:${MONGO_PASSWORD}@phonebook-ajaa7.mongodb.net/test?retryWrites=true&w=majority`
+let MONGO_URI = process.env.MONGO_URI
+let TEST_MONGO_URI = process.env.TEST_MONGO_URI
+
+if (process.env.NODE_ENV === 'test') {
+    MONGO_URI = TEST_MONGO_URI
+}
+
 module.exports = {
     PORT,
     MONGO_URI

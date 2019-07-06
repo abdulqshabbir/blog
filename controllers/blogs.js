@@ -4,38 +4,45 @@ const Blog = require('./../models/Blog')
 /*
     @GET ROUTE
 */
-blogRouter.get('/', (req, res) => {
-    Blog
-        .find({})
-        .then(docs => docs.map(doc => doc.toJSON()))
-        .then(formattedDocs => res.json(formattedDocs))
-        .catch(error => {
-            console.log(error)
-            res.status(500).end()
-        })
+blogRouter.get('/', async (req, res) => {
+    try {
+        const blogs = await Blog.find({})
+        const formattedBlogs = blogs.map( blog => blog.toJSON())
+        res.json(formattedBlogs)
+    } catch(e) {
+        console.log(e)
+        res.status(500).end()
+    }
 })
 
 /*
     @POST ROUTE
 */
 
-blogRouter.post('/', (req, res) => {
+blogRouter.post('/', async (req, res) => {
     const { title, author, url, likes } = req.body
-    if (!title || !author || !url || !likes) return res.status(400).json({"error": "bad request"}).end()
+    
+    if (!title || !author || !url || !likes) {    
+        return res.status(400).json({"error": "bad request"})
+    }
+    
     const newBlog = new Blog({
         title,
         author,
         url,
         likes
     })
-    newBlog
-        .save()
-        .then(blog => blog.toJSON())
-        .then(formattedBlog => res.status(201).json(formattedBlog))
-        .catch(error => {
-            console.log(error)
-            res.status(500).end()
-        })
+
+    console.log(newBlog)
+
+    try {
+        const savedBlog = await newBlog.save()
+        const savedFormattedBlog = savedBlog.toJSON()
+        res.status(201).json(savedFormattedBlog)
+    } catch(e) {
+        console.log(e)
+        res.status(500).end()
+    }
 })
 
 module.exports = blogRouter
