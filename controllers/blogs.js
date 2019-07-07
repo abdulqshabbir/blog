@@ -1,4 +1,3 @@
-const mongoose = require('mongoose')
 const blogRouter = require('express').Router()
 const Blog = require('./../models/Blog')
 /*
@@ -32,8 +31,6 @@ blogRouter.post('/', async (req, res) => {
         url,
         likes
     })
-
-    console.log(newBlog)
 
     try {
         const savedBlog = await newBlog.save()

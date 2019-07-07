@@ -2,37 +2,10 @@ const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 const mongoose = require('mongoose')
-const Blog = require('./../models/Blog')
-
-const initialBlogs = [
-    {
-        _id: "5a422a851b54a676234d17f7",
-        title: "React patterns",
-        author: "Michael Chan",
-        url: "https://reactpatterns.com/",
-        likes: 7,
-        __v: 0
-    },
-    {
-        _id: "5a422aa71b54a676234d17f8",
-        title: "Go To Statement Considered Harmful",
-        author: "Edsger W. Dijkstra",
-        url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
-        likes: 5,
-        __v: 0
-    },
-    {
-        _id: "5a422b3a1b54a676234d17f9",
-        title: "Canonical string reduction",
-        author: "Edsger W. Dijkstra",
-        url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-        likes: 12,
-        __v: 0
-    }
-]
+const Blog = require('../models/Blog')
 
 beforeEach(async() => {
-    await Blog.deleteMany({})
+    await Blog.remove({}).exec()
 
     const firstBlog = new Blog({
         title: "React patterns",
@@ -51,7 +24,7 @@ beforeEach(async() => {
     await secondBlog.save()
 })
 
-const notesInDb = async () => {
+const blogsInDb = async () => {
     const notes = await Blog.find({})
     return notes.map(note => note.toJSON())
 }
@@ -90,18 +63,19 @@ describe('POST requests', () => {
                 .expect('Content-Type', /application\/json/)
     })
     test('POST request to /api/blogs adds note to database', async () => {
-        const blogsAtStart = await notesInDb()
+        const blogsAtStart = await blogsInDb()
         
         await api
                 .post('/api/blogs')
                 .send(newBlog)
         
-        const blogsAtEnd = await notesInDb()
+        const blogsAtEnd = await blogsInDb()
         const blogTitlesAtEnd = blogsAtEnd.map(blog => blog.title)
         expect(blogsAtEnd.length).toBe(blogsAtStart.length + 1)
         expect(blogTitlesAtEnd.includes('My blog post'))
     })
 })
+
 
 afterAll(() => {
     mongoose.connection.close()

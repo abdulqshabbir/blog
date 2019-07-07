@@ -3,6 +3,7 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const blogRouter = require('./controllers/blogs')
+const userRouter = require('./controllers/users')
 const express = require('express')
 const app = express()
 const mongoose = require('mongoose')
@@ -27,4 +28,5 @@ app.use(logger)
 
 //------------------ ROUTES -------------------//
 app.use('/api/blogs', blogRouter)
+app.use('/api/users', userRouter)
 module.exports = app

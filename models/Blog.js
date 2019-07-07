@@ -1,4 +1,4 @@
-//----------- DATABASE SCHEMAS/MODELS ----------//
+//----------- BLOG SCHEMA AND MODEL ----------//
 const mongoose = require('mongoose')
 
 const blogSchema = new mongoose.Schema({
