@@ -53,17 +53,21 @@ describe('GET requests', () => {
 })
 
 describe('POST requests', () => {
-    const newUser = new User({
+    const newUser = {
         username: 'newUser',
         name: 'new name',
         password: 'newpassword'
-    })
+    }
     test('POST request to /api/users returns correct Content-Type and status header', async () => {
-        await api
+        try {
+            await api
             .post('/api/users')
             .send(newUser)
             .expect(201)
             .expect('Content-Type', /application\/json/)
+        } catch(e) {
+            console.log(e)
+        }
     })
 
     test('POST request to return correct number of items', async () => {
@@ -93,6 +97,13 @@ describe('POST requests', () => {
     })
 })
 
+describe('Validate User Creation', () => {
+    const invalidUser = new User({
+        name: 'invalid user',
+        username: 'invalidUser',
+        password: 'ab'
+    }) 
+})
 
 afterAll(() => {
     mongoose.connection.close()

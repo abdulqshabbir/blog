@@ -11,4 +11,16 @@ const logger = (req, res, next) => {
     next()
 }
 
-module.exports = logger
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message, 'hi there!!!!!!!!!!!!!!!!!!')
+
+    if (error.name === 'ValidationError') {
+        res.status(400).json({error: error.message})
+    }
+    next(error)
+}
+
+module.exports = {
+    logger,
+    errorHandler
+}

@@ -4,6 +4,11 @@ const api = supertest(app)
 const mongoose = require('mongoose')
 const Blog = require('../models/Blog')
 
+const blogsInDb = async () => {
+    const notes = await Blog.find({})
+    return notes.map(note => note.toJSON())
+}
+
 beforeEach(async() => {
     await Blog.remove({}).exec()
 
@@ -23,11 +28,6 @@ beforeEach(async() => {
     })
     await secondBlog.save()
 })
-
-const blogsInDb = async () => {
-    const notes = await Blog.find({})
-    return notes.map(note => note.toJSON())
-}
 
 describe('GET requests', () => {
     test('GET request to /api/blogs with correct Content-Type and Status Code', async () => {
@@ -75,7 +75,6 @@ describe('POST requests', () => {
         expect(blogTitlesAtEnd.includes('My blog post'))
     })
 })
-
 
 afterAll(() => {
     mongoose.connection.close()
