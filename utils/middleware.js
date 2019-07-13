@@ -12,15 +12,23 @@ const logger = (req, res, next) => {
 }
 
 const errorHandler = (error, request, response, next) => {
-    console.error(error.message, 'hi there!!!!!!!!!!!!!!!!!!')
-
     if (error.name === 'ValidationError') {
         res.status(400).json({error: error.message})
     }
     next(error)
 }
 
+const tokenExtractor = (request, response, next) => {
+    const authorization = request.get('authorization')
+    if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+        // grab only the jwt token sent in the authorization header
+        request.token = authorization.substring(7)
+    }
+    next()
+}
+
 module.exports = {
     logger,
-    errorHandler
+    errorHandler,
+    tokenExtractor
 }
