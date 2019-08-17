@@ -97,14 +97,6 @@ describe('POST requests', () => {
     })
 })
 
-describe('Validate User Creation', () => {
-    const invalidUser = new User({
-        name: 'invalid user',
-        username: 'invalidUser',
-        password: 'ab'
-    }) 
-})
-
 afterAll(() => {
     mongoose.connection.close()
 })

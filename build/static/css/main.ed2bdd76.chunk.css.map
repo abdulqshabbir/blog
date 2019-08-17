@@ -1,0 +1,1 @@
+{"version":3,"sources":["blog.css"],"names":[],"mappings":"AAAA,MACI,qBAAsB,CACtB,YAAa,CACb,aACJ","file":"main.ed2bdd76.chunk.css","sourcesContent":[".blog {\n    border: 1px grey solid;\n    padding: 10px;\n    margin: 10px 0px 10px 0px;\n}"]}

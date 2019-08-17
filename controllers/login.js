@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken')
 const JWT_SECRET = require('./../utils/config').JWT_SECRET
 const loginRouter = require('express').Router()
-const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const User = require('./../models/User')
 
@@ -24,31 +23,36 @@ loginRouter.post('/', async (req, res) => {
 
     if (!(body.password && body.username)) {
         res.status(400).json({error: "Username and password must be provided."})
+        return
     }
 
-    if (!user) {
+    else if (!user) {
         res.status(400).json({error: "Could not find user in our database."})
+        return
     }
 
-    const passwordCorrect = await bcrypt.compare(body.password, user.hashedPassword)
-
-    if (!passwordCorrect) {
-        // send a 401 status for unauthorized user
-        res.status(401).json({error: "Invalid password"})
-    }
-
-    else {
-        const userForToken = {
-            username: user.username,
-            id: user._id
-        }
-        const token = await jwt.sign(userForToken, JWT_SECRET)
-        res.status(200).send({
-            token,
-            userForToken
-        })
-
-    }
+    try {
+        const passwordCorrect = await bcrypt.compare(body.password, user.hashedPassword)
+            if (!passwordCorrect) {
+                // send a 401 status for unauthorized user
+                res.status(401).json({error: "Invalid password"})
+            }
+            else {
+                const userForToken = {
+                    username: user.username,
+                    id: user._id
+                }
+                const token = await jwt.sign(userForToken, JWT_SECRET)
+                const formattedUser = {
+                    username: userForToken.username,
+                    id: userForToken.id,
+                    token
+                }
+                res.status(200).json({...formattedUser})
+        }   
+    } catch (e) {
+        console.log(e)
+    }    
 })
 
 module.exports = loginRouter

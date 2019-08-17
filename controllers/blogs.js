@@ -39,8 +39,9 @@ blogRouter.get('/:id', async (req, res) => {
 blogRouter.post('/', async (req, res) => {
     const { title, author, url, likes } = req.body
     console.log('request body: ', req.body)
-    
-    if (!(title && author && url && likes)) {    
+    console.log('title', title, 'author', author, 'url', url, 'likes', likes)
+    if (!title || !author || !url) {
+        console.log("first if statement triggered!")    
         return res.status(400).json({"error": "bad request"})
     }
 
@@ -83,6 +84,20 @@ blogRouter.post('/', async (req, res) => {
     }
 })
 
+blogRouter.post('/:id/comments', async (req, res) => {
+    const blogId = req.params.id
+    const blogComment = req.body.comment
+    console.log('blog id', blogId)
+
+    try {
+        const blog = await Blog.findByIdAndUpdate(blogId, {$push: {comments: blogComment}}, { safe: true, upsert: true })
+        res.status(200).json(blog)
+    }
+    catch (e) {
+        console.log(e)
+    }
+})
+
 /*
     @DELETE ROUTE
 
@@ -92,14 +107,6 @@ blogRouter.post('/', async (req, res) => {
 */
 
 blogRouter.delete('/:id', async (req, res) => {
-    /*
-        1.  DELETE request must come with a bearer token in the header
-        2.  Grab the bearer token from the header and decode the user
-        3.  Use the decodedUser's id to find a user in the database with the same id
-        4.  Find all blogs authored by that user
-        5.  Check if the blog being deleted (id of blogs is given in req.params) is one of the blogs authored by that user
-    */
-
     // grab token from request header
     const authorization = req.get('authorization')
     if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
@@ -107,7 +114,7 @@ blogRouter.delete('/:id', async (req, res) => {
         req.token = authorization.substring(7)
     }
 
-    const token = req.body.token
+    const token = req.token
     const toBeDeletedBlogId = req.params.id
     
     try {
@@ -116,20 +123,46 @@ blogRouter.delete('/:id', async (req, res) => {
             res.status.end(401).json({error: 'token missing or invalid.  Unauthorized Access'})
         }
         else {
-            const blogAuthor = await User.findById(user.id)
-            const blogsWrittenByAuthor = blogAuthor.blogs
-            if (blogsWrittenByAuthor.includes(toBeDeletedBlogId)) {
-                await Blog.findByIdAndRemove(toBeDeletedBlogId).exec()
-                res.send(200).end()
-            }
-            else {
-                res.send(401).json({error: 'Unauthorized Access.  User that sent the delete request did not create this blog.'})
-            }
+            await Blog.findByIdAndRemove(toBeDeletedBlogId).exec()
+            res.send(200).end()
+        }
+    } catch(exception) {
+        console.log(exception)
+    }
+})
+
+/*
+    @PUT ROUTE
+
+    @decodedUser has signature: [Oject] [  username: [String], id: [String], iat: [String]  }
+    @req.params holds the value of the blog id being updated
+    @req.token holds the value of the bearer token
+*/
+
+blogRouter.put('/:id', async (req, res) => {
+    const authorization = req.get('authorization')
+    if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+        // grab only the jwt token sent in the authorization header
+        req.token = authorization.substring(7)
+    }
+    const token = req.token
+    const updatedLikes = req.body.likes + 1
+    const blogId = req.params.id
+        
+    try {
+        const user = await jwt.verify(token, JWT_SECRET)
+        if (!user || !token) {
+            res.status.end(401).json({error: 'token missing or invalid.  Unauthorized Access'})
+        }
+        else {
+            await Blog.findByIdAndUpdate(blogId, {likes: updatedLikes}).exec()
+            return updatedLikes
         }
 
     } catch(exception) {
         console.log(exception)
     }
 })
+
 
 module.exports = blogRouter
