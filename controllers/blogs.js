@@ -84,14 +84,21 @@ blogRouter.post('/', async (req, res) => {
     }
 })
 
+/*
+    @param req.body { Object } must have a comment field
+*/
+
 blogRouter.post('/:id/comments', async (req, res) => {
     const blogId = req.params.id
     const blogComment = req.body.comment
     console.log('blog id', blogId)
+    console.log('blog comment to add', blogComment)
 
     try {
-        const blog = await Blog.findByIdAndUpdate(blogId, {$push: {comments: blogComment}}, { safe: true, upsert: true })
-        res.status(200).json(blog)
+        await res.status(200).json([
+            'first fixed comment',
+            'second fixed comment' 
+        ])
     }
     catch (e) {
         console.log(e)
